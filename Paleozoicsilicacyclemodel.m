@@ -9,7 +9,7 @@
 %remaining sections are structured identically, and just differ in terms of
 %the ODE math and some additional parameters.
 
-%This version was last updated on July 8, 2020.
+%This version was last updated on March 23, 2020.
 
 %%
 %Run this section for modern-like diatom + sponge model. 
@@ -17,7 +17,9 @@
 clear
 
 %This solves the primary ODE for the silica fluxes.
-[t,C] = ode45(@sibox_diatomsponge,0:.1:50000,[.5; .5]);
+Fin = 5*10^12; %[mol/yr]
+[t,C] = ode45(@(t,C) sibox_diatomsponge(t,C,Fin),0:.1:50000,[.5; .5]);
+%units for timesteps (t) are years; units for DSi concentration (C) are mM
 
 %Plot the evolution of concentrations in surface and deep ocean reservoirs
 %over time.
@@ -25,7 +27,8 @@ figure
 subplot(1,3,1)
 semilogy(t,C(:,1)*10^3,t,C(:,2)*10^3)
 legend('surface','deep')
-ylim([1 1000])
+ylim([1 10000])
+xlim([0 5*10^4])
 ylabel('[DSi] \muM')
 
 %More convenient labels for concentration vectors.
@@ -42,7 +45,6 @@ Feuphotic = 0.0263;
 volsurf = volocean*Feuphotic; %[m^3]
 voldeep = volocean-volsurf; %[m^3]
 Wex = 1.37*10^15; %[m^3/yr]
-Fin = 7*10^12; %[mol/yr]
 Vmax = 500*10^12; %[mol/yr]
 Km = 9; %[uM]
 Km = Km/1000; %[mol/m^3]
@@ -111,13 +113,15 @@ plot(t,d30Sisurf,t,d30Sideep,t,d30BSi_diatom,t,d30BSi_sponge)
 yline(d30Si_in)
 legend('surface','deep','diatom','sponge','input')
 ylabel('\delta^3^0Si')
-ylim([-5 5])
+ylim([-5 6])
+xlim([0 5*10^4])
 
 subplot(1,3,3)
 semilogy(t,burialBSi,t,BSi_prod_sponge,t,burialBSi+BSi_prod_sponge)
 %Add horizontal line to indicate input flux (Fin)
 yline(Fin)
 ylim([10^12 10^15])
+xlim([0 5*10^4])
 ylabel('BSi output (mol/yr)')
 legend('diatom','sponge','sum','input')
 
@@ -127,13 +131,14 @@ legend('diatom','sponge','sum','input')
 
 clear
 
-[t,C] = ode45(@sibox_sponge,0:.1:150000,[.5; .5]);
+Fin = 5*10^12; %[mol/yr]
+[t,C] = ode45(@(t,C) sibox_sponge(t,C,Fin),0:.1:200000,[.5; .5]);
 
 figure
 subplot(1,3,1)
 semilogy(t,C(:,1)*10^3,t,C(:,2)*10^3)
 legend('surface','deep')
-ylim([1 1000])
+ylim([1 10000])
 ylabel('[DSi] \muM')
 
 Csurf = C(:,1);
@@ -145,7 +150,6 @@ Feuphotic = 0.0263;
 volsurf = volocean*Feuphotic; %[m^3]
 voldeep = volocean-volsurf; %[m^3]
 Wex = 1.37*10^15; %[m^3/yr]
-Fin = 7*10^12; %[mol/yr]
 Vmax = 0.13; % [umol/hr/mL sponge]
 Vmax = Vmax*10^-6*24*365*1000; %[mol/yr/L sponge]
 spongeseafloordensity = 0.34; % [L sponge/m^2]
@@ -181,7 +185,7 @@ plot(t,d30Sisurf,t,d30Sideep,t,d30BSi)
 yline(d30Si_in)
 legend('surface','deep','sponge','input')
 ylabel('\delta^3^0Si')
-ylim([-5 5])
+ylim([-5 6])
 
 subplot(1,3,3)
 semilogy(t,BSi_prod_sponge)
@@ -196,13 +200,14 @@ legend('sponge','input')
 
 clear
 
-[t,C] = ode45(@sibox_spongerad,0:.1:100000,[.5; .5]);
+Fin = 5*10^12; %[mol/yr]
+[t,C] = ode45(@(t,C) sibox_spongerad(t,C,Fin),0:.1:100000,[.5; .5]);
 
 figure
 subplot(1,3,1)
 semilogy(t,C(:,1)*10^3,t,C(:,2)*10^3)
 legend('surface','deep')
-ylim([1 1000])
+ylim([1 10000])
 ylabel('[DSi] \muM')
 
 Csurf = C(:,1);
@@ -214,7 +219,6 @@ Feuphotic = 0.0263;
 volsurf = volocean*Feuphotic; %[m^3]
 voldeep = volocean-volsurf; %[m^3]
 Wex = 1.37*10^15; %[m^3/yr]
-Fin = 7*10^12; %[mol/yr]
 Vmax_sponge = 0.13; % [umol/hr/mL sponge]
 Vmax_sponge = Vmax_sponge*10^-6*24*365*1000; %[mol/yr/L sponge]
 spongeseafloordensity = 0.34; % [L sponge/m^2]
@@ -273,7 +277,7 @@ plot(t,d30Sisurf,t,d30Sideep,t,d30BSi_rad,t,d30BSi_sponge)
 yline(d30Si_in)
 legend('surface','deep','radiolarian','sponge','input')
 ylabel('\delta^3^0Si')
-ylim([-5 5])
+ylim([-5 6])
 
 subplot(1,3,3)
 semilogy(t,burialBSi_rad,t,BSi_prod_sponge,t,burialBSi_rad+BSi_prod_sponge)
@@ -288,13 +292,14 @@ legend('radiolarian','sponge','sum','input')
 
 clear
 
-[t,C] = ode45(@sibox_spongerad_lowDSiaffinity,0:.1:500000,[.5; .5]);
+Fin = 5*10^12; %[mol/yr]
+[t,C] = ode45(@(t,C)sibox_spongerad_lowDSiaffinity(t,C,Fin),0:.1:1500000,[.5; .5]);
 
 figure
 subplot(1,3,1)
 semilogy(t,C(:,1)*10^3,t,C(:,2)*10^3)
 legend('surface','deep')
-ylim([1 1000])
+ylim([1 10000])
 ylabel('[DSi] \muM')
 
 Csurf = C(:,1);
@@ -306,7 +311,6 @@ Feuphotic = 0.0263;
 volsurf = volocean*Feuphotic; %[m^3]
 voldeep = volocean-volsurf; %[m^3]
 Wex = 1.37*10^15; %[m^3/yr]
-Fin = 7*10^12; %[mol/yr]
 Vmax_sponge = 0.05; % [umol/hr/mL sponge]
 Vmax_sponge = Vmax_sponge*10^-6*24*365*1000; %[mol/yr/L sponge]
 spongeseafloordensity = 0.34; % [L sponge/m^2]
@@ -365,7 +369,7 @@ plot(t,d30Sisurf,t,d30Sideep,t,d30BSi_rad,t,d30BSi_sponge)
 yline(d30Si_in)
 legend('surface','deep','radiolarian','sponge','input')
 ylabel('\delta^3^0Si')
-ylim([-5 5])
+ylim([-5 6])
 
 subplot(1,3,3)
 semilogy(t,burialBSi_rad,t,BSi_prod_sponge,t,burialBSi_rad+...
@@ -381,13 +385,14 @@ legend('radiolarian','sponge','sum','input')
 
 clear
 
-[t,C] = ode45(@sibox_spongerad_lowDSiaffinity,0:.1:500000,[.5; .5]);
+Fin = 5*10^12; %[mol/yr]
+[t,C] = ode45(@(t,C)sibox_spongerad_lowDSiaffinity(t,C,Fin),0:.1:1500000,[.5; .5]);
 
 figure
 subplot(1,3,1)
 semilogy(t,C(:,1)*10^3,t,C(:,2)*10^3)
 legend('surface','deep')
-ylim([1 1000])
+ylim([1 10000])
 ylabel('[DSi] \muM')
 
 Csurf = C(:,1);
@@ -399,7 +404,6 @@ Feuphotic = 0.0263;
 volsurf = volocean*Feuphotic; %[m^3]
 voldeep = volocean-volsurf; %[m^3]
 Wex = 1.37*10^15; %[m^3/yr]
-Fin = 7*10^12; %[mol/yr]
 Vmax_sponge = 0.05; % [umol/hr/mL sponge]
 Vmax_sponge = Vmax_sponge*10^-6*24*365*1000; %[mol/yr/L sponge]
 spongeseafloordensity = 0.34; % [L sponge/m^2]
@@ -458,7 +462,7 @@ plot(t,d30Sisurf,t,d30Sideep,t,d30BSi_rad,t,d30BSi_sponge)
 yline(d30Si_in)
 legend('surface','deep','radiolarian','sponge','input')
 ylabel('\delta^3^0Si')
-ylim([-5 5])
+ylim([-5 6])
 
 subplot(1,3,3)
 semilogy(t,burialBSi_rad,t,BSi_prod_sponge,t,burialBSi_rad+...
@@ -469,7 +473,7 @@ ylabel('BSi output (mol/yr)')
 legend('radiolarian','sponge','sum','input')
 
 %%
-function dCdt =sibox_diatomsponge(t,C)
+function dCdt =sibox_diatomsponge(t,C,Fin)
 
     volocean = 1.35*10^18; %[m^3]
     SAocean = 3.6*10^14; %[m^2]
@@ -477,10 +481,9 @@ function dCdt =sibox_diatomsponge(t,C)
     volsurf = volocean*Feuphotic; %[m^3]
     voldeep = volocean-volsurf; %[m^3]
     Wex = 1.37*10^15; %[m^3/yr]
-    Fin = 7*10^12; %[mol/yr]
     Vmax = 500*10^12; %[mol/yr]
     Km = 9; %[uM]
-    Km = Km/1000; %[mol/m^3]
+    Km = Km/1000; %[mol/m^3 = mM]
     Velsurf = 1800; %[m/yr]
     Veldeep = 73000; %[m/yr]
     Dsurf = volsurf/SAocean; %[m]
@@ -488,7 +491,7 @@ function dCdt =sibox_diatomsponge(t,C)
     ksurf = 9; %[mol/mol/yr]
     kdeep = 24; %[mol/mol/yr]
     Ceq = 350; %[uM]
-    Ceq = Ceq*10^-3; %[mol/m^3]
+    Ceq = Ceq*10^-3; %[mol/m^3 = mM]
     Km_sponge = 75;
     Km_sponge = Km_sponge/1000;
     Vmax_sponge = 0.13; % [umol/hr/mL sponge]
@@ -507,7 +510,7 @@ function dCdt =sibox_diatomsponge(t,C)
     
 end
 
-function dCdt =sibox_sponge(t,C)
+function dCdt =sibox_sponge(t,C,Fin)
 
     volocean = 1.35*10^18; %[m^3]
     SAocean = 3.6*10^14; %[m^2]
@@ -515,7 +518,6 @@ function dCdt =sibox_sponge(t,C)
     volsurf = volocean*Feuphotic; %[m^3]
     voldeep = volocean-volsurf; %[m^3]
     Wex = 1.37*10^15; %[m^3/yr]
-    Fin = 7*10^12; %[mol/yr]
     Vmax = 0.13; % [umol/hr/mL sponge]
     Vmax = Vmax*10^-6*24*365*1000; %[mol/yr/L sponge]
     spongeseafloordensity = 0.34; % [L sponge/m^2]
@@ -528,7 +530,7 @@ function dCdt =sibox_sponge(t,C)
     
 end
 
-function dCdt =sibox_spongerad(t,C)
+function dCdt =sibox_spongerad(t,C,Fin)
 
     volocean = 1.35*10^18; %[m^3]
     SAocean = 3.6*10^14; %[m^2]
@@ -536,7 +538,6 @@ function dCdt =sibox_spongerad(t,C)
     volsurf = volocean*Feuphotic; %[m^3]
     voldeep = volocean-volsurf; %[m^3]
     Wex = 1.37*10^15; %[m^3/yr]
-    Fin = 7*10^12; %[mol/yr]
     Velsurf = 1800; %[m/yr]
     Veldeep = 73000; %[m/yr]
     Dsurf = volsurf/SAocean; %[m]
@@ -565,7 +566,7 @@ function dCdt =sibox_spongerad(t,C)
     
 end
 
-function dCdt =sibox_spongerad_lowDSiaffinity(t,C)
+function dCdt =sibox_spongerad_lowDSiaffinity(t,C,Fin)
 
     volocean = 1.35*10^18; %[m^3]
     SAocean = 3.6*10^14; %[m^2]
@@ -573,7 +574,6 @@ function dCdt =sibox_spongerad_lowDSiaffinity(t,C)
     volsurf = volocean*Feuphotic; %[m^3]
     voldeep = volocean-volsurf; %[m^3]
     Wex = 1.37*10^15; %[m^3/yr]
-    Fin = 7*10^12; %[mol/yr]
     Velsurf = 1800; %[m/yr]
     Veldeep = 73000; %[m/yr]
     Dsurf = volsurf/SAocean; %[m]
